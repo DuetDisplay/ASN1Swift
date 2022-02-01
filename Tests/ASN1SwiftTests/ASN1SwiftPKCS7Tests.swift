@@ -8,12 +8,28 @@ final class ASN1SwiftPKCS7Tests: XCTestCase
 	{
 		self.measure {
 			let asn1Decoder = ASN1Decoder()
-			let r = try! asn1Decoder.decode(PKCS7Container.self, from: newReceipt)
+			let _ = try! asn1Decoder.decode(PKCS7Container.self, from: newReceipt)
 			//XCTAssert(r.signedData.version == 1)
 		}
 		
 		
 	}
+	
+	func testDecoding_largeReceipt() throws
+	{
+		let asn1Decoder = ASN1Decoder()
+		let r = try! asn1Decoder.decode(PKCS7Container.self, from: longReceipt)
+		XCTAssert(r.signedData.version == 1)
+	}
+	
+	func testDecoding_ios10Receipt() throws
+	{
+		let asn1Decoder = ASN1Decoder()
+		let r = try! asn1Decoder.decode(PKCS7Container.self, from: crashing)
+		XCTAssert(r.signedData.version == 1)
+	}
+	
+	
 	
 	func testDecoding_dataWithIndefiniteLength() throws
 	{

@@ -167,9 +167,18 @@ func fetchTag(from ptr: UnsafePointer<UInt8>, size: Int, to rTag: inout ASN1Tag)
 				skipped = -1
 				break
 			}
-		}else{
+		}
+		else {
 			val = (val << 7) | UInt(b)
-			rTag = UInt8(val << 2) | rawTagClass;
+
+			// Make sure it won't overflow
+			if val < 64 {
+				rTag = UInt8(val << 2) | rawTagClass;
+			}
+			else {
+				// If it would be over 64 then just return the tag portion itself not the tag modifiers
+				rTag = firstByte & ASN1Identifier.Tag.tagNumMask
+			}
 			break
 		}
 		
@@ -235,7 +244,7 @@ func fetchLength(from ptr: UnsafePointer<UInt8>, size: Int, isConstructed: Bool,
 			return skipped
 		}
 		
-		assertionFailure("Not enought data")
+		assertionFailure("Not enough data")
 		return -1
 	}
 }
@@ -264,7 +273,7 @@ func calculateLength(from ptr: UnsafePointer<UInt8>, size: Int, isConstructed: B
 		
 		if skip > size
 		{
-			assertionFailure("Not enought data")
+			assertionFailure("Not enough data")
 			return 0
 		}
 		
